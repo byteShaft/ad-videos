@@ -2,7 +2,6 @@ package byteshaft.com.advideos;
 
 import android.app.Activity;
 import android.content.Context;
-import android.content.Intent;
 import android.os.Bundle;
 import android.text.InputType;
 import android.util.Log;
@@ -97,10 +96,6 @@ public class PasswordActivity extends Activity {
         buttonExit.setOnClickListener(new View.OnClickListener() {
                                           public void onClick(View v) {
                                               //Exit app
-                                              Intent i = new Intent();
-                                              i.setAction(Intent.ACTION_MAIN);
-                                              i.addCategory(Intent.CATEGORY_HOME);
-                                              appContext.startActivity(i);
                                               finish();
 
                                           }

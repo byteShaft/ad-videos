@@ -154,6 +154,7 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
 
     @Override
     public void onBackPressed() {
+        Log.i("TAG", "onBackPressed");
         startActivity(new Intent(this, PasswordActivity.class));
     }
 }

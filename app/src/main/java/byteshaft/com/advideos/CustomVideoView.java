@@ -137,7 +137,7 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
 
         Log.d("TAG", "====Bringging Application to Front====");
 
-        Intent notificationIntent = new Intent(this, MainActivity.class);
+        Intent notificationIntent = new Intent(this, CustomVideoView.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
         try {
@@ -160,7 +160,7 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
         alertDialog.setTitle("Enter Password");
 
         // outside touch disable
-        alertDialog.setCancelable(false);
+        alertDialog.setCancelable(true);
 
         final EditText input = new EditText(CustomVideoView.this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);

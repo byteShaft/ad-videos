@@ -12,9 +12,12 @@ import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -164,10 +167,15 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
 
         final EditText input = new EditText(CustomVideoView.this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
+        input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        input.setFilters(new InputFilter[] {new InputFilter.LengthFilter.LengthFilter(4)});
+        input.setHint("Enter pin code ");
+
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        input.setLayoutParams(lp);
         alertDialog.setView(input);
 
         // Setting Positive "Yes" Button

@@ -3,15 +3,21 @@ package byteshaft.com.advideos;
 
 import android.annotation.TargetApi;
 import android.app.Activity;
+import android.app.KeyguardManager;
+import android.app.PendingIntent;
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.media.MediaPlayer;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AlertDialog;
+import android.text.InputFilter;
 import android.text.InputType;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.View;
+import android.view.inputmethod.EditorInfo;
 import android.widget.EditText;
 import android.widget.LinearLayout;
 import android.widget.MediaController;
@@ -19,6 +25,8 @@ import android.widget.Toast;
 import android.widget.VideoView;
 
 import java.io.File;
+import java.util.Timer;
+import java.util.TimerTask;
 
 public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedListener, MediaPlayer.OnCompletionListener {
 
@@ -27,6 +35,11 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
     public int file = 0;
     private MediaController mediaController;
     public static CustomVideoView customVideoView;
+
+    // to bring application on top
+
+    private Timer timer;
+    MyTimerTask myTimerTask;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,20 +112,70 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
         }
     }
 
+    @Override
+    protected void onPause() {
+        if (timer == null) {
+            myTimerTask = new MyTimerTask();
+            timer = new Timer();
+            timer.schedule(myTimerTask, 100, 100);
+        }
+
+        super.onPause();
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        if (timer != null) {
+            timer.cancel();
+            timer = null;
+        }
+    }
+
+    private void bringApplicationToFront() {
+        KeyguardManager myKeyManager = (KeyguardManager) getSystemService(Context.KEYGUARD_SERVICE);
+        if (myKeyManager.inKeyguardRestrictedInputMode())
+            return;
+
+        Log.d("TAG", "====Bringging Application to Front====");
+
+        Intent notificationIntent = new Intent(this, CustomVideoView.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+        try {
+            pendingIntent.send();
+        } catch (PendingIntent.CanceledException e) {
+            e.printStackTrace();
+        }
+    }
+
+    class MyTimerTask extends TimerTask {
+        @Override
+        public void run() {
+            bringApplicationToFront();
+        }
+    }
+
     private void enterPasswordDialog() {
         AlertDialog.Builder alertDialog = new AlertDialog.Builder(CustomVideoView.this);
         // Setting Dialog Title
         alertDialog.setTitle("Enter Password");
 
         // outside touch disable
-        alertDialog.setCancelable(false);
+        alertDialog.setCancelable(true);
 
         final EditText input = new EditText(CustomVideoView.this);
         input.setInputType(InputType.TYPE_CLASS_NUMBER);
-        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
-                LinearLayout.LayoutParams.MATCH_PARENT,
-                LinearLayout.LayoutParams.MATCH_PARENT);
-        input.setLayoutParams(lp);
+        input.setImeOptions(EditorInfo.IME_FLAG_NO_EXTRACT_UI);
+        input.setTransformationMethod(PasswordTransformationMethod.getInstance());
+        input.setFilters(new InputFilter[] {new InputFilter.LengthFilter.LengthFilter(4)});
+        input.setHint("Enter pin code ");
+
+//        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(
+//                LinearLayout.LayoutParams.MATCH_PARENT,
+//                LinearLayout.LayoutParams.MATCH_PARENT);
+//        input.setLayoutParams(lp);
         alertDialog.setView(input);
 
         // Setting Positive "Yes" Button
@@ -155,6 +218,7 @@ public class CustomVideoView extends Activity implements MediaPlayer.OnPreparedL
     @Override
     public void onBackPressed() {
         Log.i("TAG", "onBackPressed");
-        startActivity(new Intent(this, PasswordActivity.class));
+        enterPasswordDialog();
+//        startActivity(new Intent(this, PasswordActivity.class));
     }
 }

@@ -5,8 +5,10 @@ import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.os.Environment;
+import android.provider.Settings;
 import android.support.v4.app.ActivityCompat;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
@@ -30,14 +32,14 @@ import java.util.ArrayList;
 
 public class MainActivity extends AppCompatActivity {
 
-    private ListView mListView;
-    public static File path = Environment.getExternalStorageDirectory();
-    public static ArrayList<String> sFilesInFolder;
     public static final String KEY = "path";
     public static final String POSITION = "position";
     public static final int MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE = 0;
-    public boolean openedOnce = false;
+    public static File path = Environment.getExternalStorageDirectory();
+    public static ArrayList<String> sFilesInFolder;
     public static MainActivity sInstance;
+    public boolean openedOnce = false;
+    private ListView mListView;
 
     public static MainActivity getInstance() {
         return sInstance;
@@ -71,6 +73,16 @@ public class MainActivity extends AppCompatActivity {
                     MY_PERMISSIONS_REQUEST_READ_EXTERNAL_STORAGE);
         } else {
             loadVideosAndSetAdapter();
+        }
+
+        if (getIntent().getBooleanExtra("play", false)) {
+            Intent intent = new Intent(getApplicationContext(), CustomVideoView.class);
+            intent.putExtra(KEY, path + File.separator + AppGlobals.FOLDER +
+                    File.separator + sFilesInFolder.get(0));
+            intent.putExtra("position", 0);
+            Log.i("TAG", "BOOT");
+            startActivity(intent);
+
         }
     }
 
@@ -117,9 +129,34 @@ public class MainActivity extends AppCompatActivity {
         @Override
         public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
             Intent intent = new Intent(getApplicationContext(), CustomVideoView.class);
-            intent.putExtra(KEY, path + File.separator+ AppGlobals.FOLDER + File.separator+ parent.getItemAtPosition(position).toString());
+            intent.putExtra(KEY, path + File.separator + AppGlobals.FOLDER +
+                    File.separator + parent.getItemAtPosition(position).toString());
             intent.putExtra("position", position);
             startActivity(intent);
+        }
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        if (requestCode == REQUEST_CODE) {
+
+            if (Settings.canDrawOverlays(this)) {
+                // continue here - permission was granted
+            }
+        }
+    }
+
+    public final static int REQUEST_CODE = -1010101;
+
+    public void checkDrawOverlayPermission() {
+        /** check if we already  have permission to draw over other apps */
+        if (!Settings.canDrawOverlays(AppGlobals.getContext())) {
+            /** if not construct intent to request permission */
+            Intent intent = new Intent(Settings.ACTION_MANAGE_OVERLAY_PERMISSION,
+                    Uri.parse("package:" + getPackageName()));
+            /** request permission via start activity for result */
+            startActivityForResult(intent, REQUEST_CODE);
         }
     }
 

@@ -10,6 +10,7 @@ public class AppGlobals extends Application {
     public static final String FOLDER = "Videos";
     public static final String PASSWORD_STATUS = "password_status";
     public static final String PASSWORD = "password";
+    public static String PATH = "";
 
     @Override
     public void onCreate() {

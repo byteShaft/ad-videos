@@ -84,7 +84,7 @@ public class PasswordActivity extends Activity {
                     passwordInput.setText(passwordInput.getText().toString().substring(0,
                             passwordInput.getText().toString().length() - 1));
                     userEntered = userEntered.substring(0,
-                                userEntered.length() - 1);
+                            userEntered.length() - 1);
 //                    if (userEntered.length() > 0) {
 //                        userEntered = userEntered.substring(0,
 //                                passwordInput.getText().toString().length() - 1);
